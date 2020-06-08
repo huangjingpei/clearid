@@ -1,0 +1,29 @@
+<?xmlversion="1.0"encoding="gb2312"?>
+<package>
+		<version>10</version>
+		<clsid>6016</clsid>
+		<name>清空手表ID</name>
+		<icon>icon.zbmp</icon>
+		<price>0</price>
+		<capbility>
+			<needKeyboard>0</needKeyboard>
+			<needDirKey>0</needDirKey>
+			<needOkKey>0</needOkKey>
+			<needSoftKey>0</needSoftKey>
+			<needTouchScreen>0</needTouchScreen>
+			<needFwatchOS>0</needFwatchOS>
+			<needStepCount>0</needStepCount>
+			<needGPS>0</needGPS>
+			<needGSensor>0</needGSensor>
+			<supportRotateScreen>0</supportRotateScreen>
+			<supportKeyboard>1</supportKeyboard>
+			<supportTouchScreen>1</supportTouchScreen>
+		</capbility>
+		<filelist>
+			<file source="dummy.app" main="true" hide="false" type="watch" screen="240,240,240,240"/>
+			<file source="..\ArmRelease\android\libclearId.so" target="00001780.aso"/>			
+			<file source="00001780.conf", target="00001780.conf"/>
+			<file source="icon.zbmp", target="icon.zbmp"/>
+			<file source="name.zbmp", target="name.zbmp"/>
+		</filelist>
+</package>

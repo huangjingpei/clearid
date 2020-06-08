@@ -1,0 +1,74 @@
+只要计费功能的话只要AeeCharge.h和AeeCharge.cpp,同时需要画界面的还要其他几个文件.
+
+一.使用计费功能:
+1.使用前类的定义:
+定义一个AeeCharge类的子类.在子类中实现virtual void Result(bool bSuccess)接口,用来接收计费结果的通知,
+例如:
+class GameCharge : public AeeCharge
+{
+public:
+	GameCharge(ZM_AEECLSID clsId, const char* szInstallDir, GoldStrike* app)
+		:AeeCharge(clsId, szInstallDir){
+		m_app = app;
+	}
+	
+	virtual ~GameCharge(){
+	}
+	
+	virtual void Result(bool bSuccess){
+		if (bSuccess)
+		{
+			if (m_app->m_appChargePage) 
+			{
+				delete m_app->m_appChargePage;
+				m_app->m_appChargePage = NULL;
+			}
+			m_app->m_isCharge = true;
+			m_app->m_world->LoadMap(GameScenePlay);
+		}
+		m_app->PaintApp();
+	}
+protected:
+	GoldStrike* m_app;
+};
+
+同时,还需实现AeeCharge* AeeCharge::GetAeeCharge(AEE_IApplet* po),返回程序中定义AeeCharge类子类的指针.
+例如:
+AeeCharge* AeeCharge::GetAeeCharge(AEE_IApplet* po)
+{
+	GoldStrike* app = (GoldStrike*)ZMAEE_GetAppInstance();
+	return app->GetCharge();
+}
+2:初始化和调用
+通过new AeeCharge类的子类生产一个实例.调用bool IsActivate()方法判断应用是否已经激活;调用void Activate(void* bufPtr = NULL, int bufSize = 0)方法激活应用(即加载计费库开始计费),其中参数可传入内存地址和大小,从而将计费模块加载到此固定内存中;bool FeepointSwtich(int feeId)方法返回计费点的开关状态,返回false表示此计费点配置为关闭状态.
+
+二.使用计费界面
+ 1.使用前类的定义:
+ 定义AeeChargePage类的子类,实现以下方法:virtual void OnChangeFocus(),焦点变化,即按钮的聚焦状态出现改变,一般在此方法中重绘界面;virtual void OnActivate(),点击了激活按钮后的处理;virtual void OnExit() ,点击退出按钮后的处理.
+ 例如:
+ class GameChargePage : public AeeChargePage
+{
+public:
+	GameChargePage(int x, int y, int width, int height, bool isChinese, GoldStrike* app)
+		:AeeChargePage(x, y, width, height, isChinese){
+		m_app = app;
+	}
+	virtual ~GameChargePage(){
+	}
+	virtual void OnChangeFocus(){
+		m_app->PaintApp();
+	}
+	virtual void OnActivate(){
+		m_app->m_appCharge->Activate();
+	}
+	virtual void OnExit() {		
+		GoldStrike* app = m_app;
+		delete app->m_appChargePage;
+		app->m_appChargePage = NULL;
+	}
+protected:
+	GoldStrike* m_app;
+};
+
+2.初始化和调用
+通过new AeeChargePage类的子类生产一个实例.其中参数bool isChinese表示当前的语言是否为中文;调用void OnDraw(AEE_IDisplay* iDisplay, int chargeStatus),绘制计费提示框,其中chargeStatus通过AeeCharge类的GetChargeStatus()方法获得;OnKey和OnPen方法传入按键和触笔事件;OnResize为改变提示框所在区域.
